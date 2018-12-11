@@ -12,7 +12,7 @@ passwords="./nextcloud.password"
 images=(wonderfall/nextcloud,mariadb:10) 		# List of nextcloud images
 user_archive=$home_dir/data/data 			# Path to source dir in app_docker
 IFS=$','
-
+app_container="nextcloud"
 ## Database docker container:
 db_container="db_nextcloud" 				# Name of DB docker container:
 db_name="nextcloud" 					# DB name in DB docker container
@@ -29,16 +29,14 @@ date
 mkdir -p $out_path
 # 2. Turn maintinance mode on
 echo "$time - Turn maintinance mode on"
-#docker exec $app_tag php /nextcloud/occ \
-#maintenance:mode --on 
-
+docker exec $app_container php /nextcloud/occ maintenance:mode --on 
 case $1 in
   images) 					# Make backup of docker images:
-echo "Saving images"
+echo "$time - Saving images"
     for i in $images 
     do
     echo "$time - Saving $i image" 
-#    docker save $i |pbzip2 -c -p4 > $outpath/$i-$date.tar.bz2 
+    docker save $i |pbzip2 -c -p4 > $outpath/$i-$date.tar.bz2 
     done
     ;;
   db)						# Make backup of database from docker container
@@ -54,6 +52,6 @@ echo "Choose from 'images', 'db' and 'user_data'"
 esac
 # 7. Turn maintinance mode off
 echo "$time - Turn maintinance mode off"
-#docker exec $app_tag php /nextcloud/occ maintenance:mode --off
+docker exec $app_container php /nextcloud/occ maintenance:mode --off
 echo "$time - Backup process is DONE"
 
